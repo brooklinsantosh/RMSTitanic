@@ -3,12 +3,15 @@ import numpy as np
 from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score
 from statistics import mode
+from create_result_df import CreateResult
 
 df = pd.read_csv("../input/train_cleaned_folds.csv")
 test = pd.read_csv("../input/test_cleaned.csv")
 ss = pd.read_csv("../input/gender_submission.csv")
 
-clf = SVC()
+#clf = SVC(C=0.05, gamma=0.0001, kernel='linear', random_state=42)
+
+clf = SVC(C=0.07259632547748618, gamma=0.06186828707791769, kernel='linear', random_state=42)
 
 accuracy =[]
 preds = []
@@ -33,9 +36,14 @@ for f in range(5):
 print(accuracy)
 print(sum(accuracy)/5)
 
-dt_pred = np.array([])
+svc_pred = np.array([])
 for i in range(0,len(X_test)):
-    dt_pred = np.append(dt_pred, mode([preds[0][i],preds[1][i],preds[2][i],preds[3][i],preds[4][i]]))
+    svc_pred = np.append(svc_pred, mode([preds[0][i],preds[1][i],preds[2][i],preds[3][i],preds[4][i]]))
 
-# ss["Survived"] = dt_pred
-# ss.to_csv("../predictions/dt_pred.csv")
+#Add these data to result dataframe
+c = CreateResult(accuracy,"SVC")
+c.create()
+
+ss["Survived"] = svc_pred
+ss["Survived"] = ss["Survived"].astype(int)
+ss.to_csv("../predictions/svc_pred.csv",index=False)

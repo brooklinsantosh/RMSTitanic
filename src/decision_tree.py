@@ -3,6 +3,7 @@ import numpy as np
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score
 from statistics import mode
+from create_result_df import CreateResult
 
 df = pd.read_csv("../input/train_cleaned_folds.csv")
 test = pd.read_csv("../input/test_cleaned.csv")
@@ -48,5 +49,10 @@ dt_pred = np.array([])
 for i in range(0,len(X_test)):
     dt_pred = np.append(dt_pred, mode([preds[0][i],preds[1][i],preds[2][i],preds[3][i],preds[4][i]]))
 
+#Add these data to result dataframe
+c = CreateResult(accuracy,"DecisionTreeClassifier")
+c.create()
+
 ss["Survived"] = dt_pred
-ss.to_csv("../predictions/dt_pred.csv")
+ss["Survived"] = ss["Survived"].astype(int)
+ss.to_csv("../predictions/dt_pred.csv", index=False)

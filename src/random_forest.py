@@ -3,7 +3,7 @@ import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 from statistics import mode
-
+from create_result_df import CreateResult
 
 df = pd.read_csv("../input/train_cleaned_folds.csv")
 test = pd.read_csv("../input/test_cleaned.csv")
@@ -44,5 +44,10 @@ rf_pred = np.array([])
 for i in range(0,len(X_test)):
     rf_pred = np.append(rf_pred, mode([preds[0][i],preds[1][i],preds[2][i],preds[3][i],preds[4][i]]))
 
+#Add these data to result dataframe
+c = CreateResult(accuracy,"RandomForestClassifier")
+c.create()
+
 ss["Survived"] = rf_pred
-ss.to_csv("../predictions/rf_pred.csv")
+ss["Survived"] = ss["Survived"].astype(int)
+ss.to_csv("../predictions/rf_pred.csv",index=False)

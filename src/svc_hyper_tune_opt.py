@@ -1,31 +1,20 @@
 import pandas as pd
 import numpy as np
-from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score
 from functools import partial
 import optuna
 
 def optimize(trial, x, y):
-    criterion = trial.suggest_categorical("criterion", ["friedman_mse", "mse"])
-    n_estimatiors = trial.suggest_int("n_estimators", 100, 1500)
-    max_depth = trial.suggest_int("max_depth", 3 ,15)
-    max_features = trial.suggest_uniform("max_features", 0.01, 1.0)
-    learning_rate = trial.suggest_uniform("learning_rate", 0.001, 1.0)
-    loss = trial.suggest_categorical("loss", ["deviance", "exponential"])
-    min_samples_leaf = trial.suggest_int("min_samples_leaf", 1 ,10)
-    min_samples_split = trial.suggest_int("min_samples_split", 2 ,10)
+    kernel = trial.suggest_categorical("kernel", ["linear", "rbf", "sigmoid"])
+    gamma = trial.suggest_uniform("gamma", 0.0001, 0.1)
+    C = trial.suggest_uniform("C", 0.01, 20)
 
 
-
-    model = GradientBoostingClassifier(
-        n_estimators= n_estimatiors,
-        max_depth= max_depth,
-        max_features= max_features,
-        criterion= criterion,
-        learning_rate= learning_rate,
-        loss= loss,
-        min_samples_leaf= min_samples_leaf,
-        min_samples_split = min_samples_split,
+    model = SVC(
+        gamma=gamma,
+        C=C,
+        kernel=kernel,
         random_state= 42
     )
     accuracies = []
@@ -51,4 +40,4 @@ if __name__ == "__main__":
 
     optimization_funtion =partial(optimize, x=X, y=y)
     study = optuna.create_study(direction="minimize")
-    study.optimize(optimization_funtion, n_trials=40)
+    study.optimize(optimization_funtion, n_trials=25)
